@@ -1,0 +1,44 @@
+#include "opencv2/objdetect/objdetect.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+#include <iostream>
+#include <stdio.h>
+
+using namespace std;
+using namespace cv;
+
+
+// Function main
+int main()
+{// capture from web camera init
+	VideoCapture cap(0); cap.open(0);
+	int x, y, w, h;
+	Mat img; string cascadeName = "C:/opencv/sources/data/haarcascades/haarcascade_frontalface_alt.xml";
+
+	//CascadeClassifier face_cascade;
+	CascadeClassifier detector;
+	string window_name = "Capture - Face detection";
+	bool loaded = detector.load(cascadeName);
+	// Parameters of detectMultiscale Cascade Classifier
+	int groundThreshold = 2; double scaleStep = 1.1; Size minimalObjectSize(50, 50); Size maximalObjectSize(400, 400);
+	// Vector of returned faces
+	vector<Rect> found;
+	for (;;)
+	{// Image from camera to Mat
+		cap >> img;// Convert input to greyscale
+		Mat image_grey; cvtColor(img, image_grey, CV_BGR2GRAY);
+		found.clear();// why not
+					  // Detect faces
+		detector.detectMultiScale(image_grey, found, scaleStep, groundThreshold, 0 | 2, minimalObjectSize, maximalObjectSize);
+		// Draw the results into mat retrieved from webcam
+		if (found.size() > 0) {
+			for (int i = 0; i <= found.size() - 1; i++) {
+				x=found[i].x; y = found[i].y; w = found[i].width; h = found[i].height;
+				Rect region(x, y, w, h);
+				//rectangle(img, found[i].br(), found[i].tl(), Scalar(0, 0, 255), 2, 8, 0);
+				GaussianBlur(img(region), img(region), Size(0, 0), 18);
+			}
+		}//Show the results
+		imshow("Auto face censored", img); int key2 = waitKey(1);
+	}return 0;
+}
